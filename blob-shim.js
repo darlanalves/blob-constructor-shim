@@ -15,22 +15,27 @@ function checkBlobConstructor() {
 }
 
 function applyShim() {
+    console.log('Using Blob shim');
+
     var originalBlob = window.Blob;
     var proto = originalBlob.prototype;
 
     function Blob(parts, properties) {
         properties = properties || {};
-        return useBlobBuilder(parts, properties.type || '');
+
+        var blob = createBlob(parts, properties.type || '');
+        blob.slice = proto.slice || proto.mozSlice || proto.webkitSlice || sliceError;
+
+        return blob;
     }
 
     Blob.prototype = Object.create(proto);
     Blob.prototype.constructor = Blob;
-    Blob.prototype.slice = proto.slice || proto.mozSlice || proto.webkitSlice || sliceError;
 
     window.Blob = Blob;
 }
 
-function useBlobBuilder(parts, type) {
+function createBlob(parts, type) {
     var BlobBuilder = window.BlobBuilder ||
         window.MSBlobBuilder ||
         window.MozBlobBuilder ||
