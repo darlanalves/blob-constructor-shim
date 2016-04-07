@@ -15,10 +15,11 @@ function checkBlobConstructor() {
 }
 
 function applyShim() {
-    const originalBlob = window.Blob;
-    const proto = originalBlob.prototype;
+    var originalBlob = window.Blob;
+    var proto = originalBlob.prototype;
 
-    function Blob(parts, properties = {}) {
+    function Blob(parts, properties) {
+        properties = properties || {};
         return useBlobBuilder(parts, properties.type || '');
     }
 
@@ -29,9 +30,8 @@ function applyShim() {
     window.Blob = Blob;
 }
 
-
 function useBlobBuilder(parts, type) {
-    const BlobBuilder = window.BlobBuilder ||
+    var BlobBuilder = window.BlobBuilder ||
         window.MSBlobBuilder ||
         window.MozBlobBuilder ||
         window.WebKitBlobBuilder;
