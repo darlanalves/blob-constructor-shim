@@ -17,20 +17,20 @@ function checkBlobConstructor() {
 function applyShim() {
     console.log('Using Blob shim');
 
-    var originalBlob = window.Blob;
-    var proto = originalBlob.prototype;
-
     function Blob(parts, properties) {
         properties = properties || {};
 
         var blob = createBlob(parts, properties.type || '');
-        blob.slice = proto.slice || proto.mozSlice || proto.webkitSlice || sliceError;
-
-        return blob;
+        Object.assign(this, blob);
     }
 
-    Blob.prototype = Object.create(proto);
-    Blob.prototype.constructor = Blob;
+    var originalBlob = window.Blob;
+    var proto = Object.create(originalBlob.prototype);
+
+    proto.constructor = Blob;
+    proto.slice = proto.slice || proto.mozSlice || proto.webkitSlice || sliceError;
+
+    Blob.prototype = proto;
 
     window.Blob = Blob;
 }
